@@ -1,6 +1,6 @@
 // src/components/YearView.tsx
 import React, { useState, useRef } from 'react';
-import { Target, Plus, Trash2, Edit2, Check, X, Calendar as CalendarIcon, ChevronLeft, ChevronRight, RotateCcw, GripVertical, User } from 'lucide-react';
+import { Plus, Trash2, Edit2, Check, X, Calendar as CalendarIcon, ChevronLeft, ChevronRight, RotateCcw, GripVertical, User } from 'lucide-react';
 
 export type YearItem = {
   id: string;

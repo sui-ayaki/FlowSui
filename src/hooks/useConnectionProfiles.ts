@@ -49,13 +49,13 @@ export function useConnectionProfiles() {
   // 現在アクティブなプロファイルオブジェクト[cite: 4]
   const activeProfile = profiles.find(p => p.id === activeProfileId) || null;
 
-  // プロファイルに保存された isOwner フラグを信頼してロールを決定（なければフォールバック判定）
-  const isRepoOwner = activeProfile ? (activeProfile as any).isOwner : false;
+// アクティブなプロファイルのGitHubユーザーを、アプリ用の `UserProfile` として自動解決
+  const isRepoOwner = activeProfile && activeProfile.owner.toLowerCase() === activeProfile.currentUser.login.toLowerCase();
 
   const currentUser: UserProfile = activeProfile ? {
     id: `gh_${activeProfile.currentUser.login}`,
     name: activeProfile.currentUser.name || activeProfile.currentUser.login,
-    role: isRepoOwner ? 'owner' : 'member', 
+    role: isRepoOwner ? 'owner' : 'member', // リポジトリの所有者なら owner、違えば member
     roleTitle: isRepoOwner ? `リポジトリオーナー (${activeProfile.currentUser.login})` : `メンバー (${activeProfile.currentUser.login})`,
     avatarUrl: activeProfile.currentUser.avatarUrl,
     updatedAt: new Date().toISOString(),
@@ -80,39 +80,13 @@ export function useConnectionProfiles() {
     filePath?: string;
     token: string;
   }) => {
-    // 1. トークンから実際のGitHubユーザー情報を取得
+    // 1. まずトークンから実際のGitHubユーザー情報を取得する
     const githubUser = await fetchGitHubUser(params.token);
 
     const targetBranch = params.branch || 'main';
     const targetFilePath = params.filePath || 'flowsui-data.json';
 
-    // 2. GitHub APIを叩いて、リポジトリの本当のオーナー（管理者）情報を取得する
-    let isOwner = false;
-    try {
-      const cleanToken = params.token.trim();
-      const authHeader = cleanToken.startsWith('github_pat_') ? `Bearer ${cleanToken}` : cleanToken.startsWith('ghp_') ? `token ${cleanToken}` : `Bearer ${cleanToken}`;
-      
-      const repoRes = await fetch(`https://api.github.com/repos/${params.owner}/${params.repo}`, {
-        headers: {
-          'Authorization': authHeader,
-          'Accept': 'application/vnd.github+json',
-        },
-      });
-
-      if (repoRes.ok) {
-        const repoData = await repoRes.json();
-        // リポジトリの owner.login と、ログインしてきたユーザーの login が一致するか
-        if (repoData.owner && repoData.owner.login.toLowerCase() === githubUser.login.toLowerCase()) {
-          isOwner = true;
-        }
-      }
-    } catch (e) {
-      console.warn('Failed to verify repository owner via API, falling back to name comparison:', e);
-      // フォールバック：API失敗時は従来の文字列比較
-      isOwner = params.owner.toLowerCase() === githubUser.login.toLowerCase();
-    }
-
-    // 3. 重複チェック
+    // 2. 「同じリポジトリ・ファイルパス」かつ「同一のGitHubユーザー(login)」のプロファイルが既に存在するかチェック
     const isDuplicate = profiles.some(p => 
       p.owner.toLowerCase() === params.owner.toLowerCase() &&
       p.repo.toLowerCase() === params.repo.toLowerCase() &&
@@ -125,7 +99,7 @@ export function useConnectionProfiles() {
       throw new Error(`このリポジトリ (${params.owner}/${params.repo}) には、すでにユーザー「${githubUser.login}」のプロファイルが登録されています。`);
     }
 
-    const newProfile: ConnectionProfile & { isOwner?: boolean } = {
+    const newProfile: ConnectionProfile = {
       id: crypto.randomUUID(),
       profileName: params.profileName,
       owner: params.owner,
@@ -138,7 +112,6 @@ export function useConnectionProfiles() {
         name: githubUser.name,
         avatarUrl: githubUser.avatarUrl,
       },
-      isOwner: isOwner, // 判定結果をここに保持！
     };
 
     setProfiles(prev => [...prev, newProfile]);

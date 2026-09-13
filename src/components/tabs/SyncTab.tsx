@@ -1,6 +1,6 @@
 // src/components/tabs/SyncTab.tsx
 import { useState } from 'react';
-import { RefreshCw, Key, CheckCircle2, AlertCircle, Plus, Trash2, Check, Shield } from 'lucide-react';
+import { RefreshCw, CheckCircle2, AlertCircle, Plus, Trash2, Check, Shield } from 'lucide-react';
 import type { ConnectionProfile, UserProfile } from '../../types';
 
 type SyncTabProps = {

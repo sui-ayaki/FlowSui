@@ -17,8 +17,6 @@ import {
   type AppSyncData, 
   type TaskItem as CentralTaskItem, 
   type CalendarEvent as CentralCalendarEvent, 
-  type GoalItem as CentralGoalItem, 
-  type TagItem as CentralTagItem, 
   type UserProfile,
   type UserRole,
   type ConnectionProfile

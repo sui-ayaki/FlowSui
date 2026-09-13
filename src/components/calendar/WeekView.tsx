@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { type CalendarEvent, type TagItem } from './CalendarContainer';
 
 type WeekViewProps = {

@@ -8,4 +8,10 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
+  server: {
+    watch: {
+      // Tauriのビルドフォルダを監視から除外する
+      ignored: ["**/src-tauri/**"],
+    },
+  },
 })

@@ -82,6 +82,8 @@ Thumbs.db
 # Tauri / Electron (将来exe化する際に出るビルド成果物用)
 src-tauri/target/
 out/
+node_modules/
+dist/
 
 # --- GitHub Sync & Secrets ---
 .env
