@@ -46,7 +46,7 @@ Download the latest `setup.exe` or `.msi` from the [Releases](https://github.com
 ### 📜 License
 This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
 
-                      Copyright (c) 2026 水 彩晶 (sui ayaki)
+Copyright (c) 2026 水 彩晶 (sui ayaki)
 
 ---
 
@@ -92,4 +92,4 @@ Apache-2.0ライセンスの条件の下で、自由にフォーク、改変、�
 ### 📜 ライセンス
 このプロジェクトは Apache License 2.0 の下で公開されています。詳細は [LICENSE](LICENSE) ファイルをご覧ください。
 
-                      Copyright (c) 2026 水 彩晶 (sui ayaki)
+Copyright (c) 2026 水 彩晶 (sui ayaki)
