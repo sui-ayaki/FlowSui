@@ -1,10 +1,15 @@
-# About FlowSUi
+# FlowSui
 
-This project is built with React, TypeScript, and Vite.
+[English](#english) | [日本語](#japanese)
 
-## Usage & Commercial Projects
+---
 
-You are free to use, modify, and redistribute this software in accordance with the terms of the MIT License.
+<a name="english"></a>
+## 🌍 English
+
+### Usage & Commercial Projects
+
+You are free to use, modify, and redistribute this software in accordance with the terms of the Apache License 2.0.
 
 If you use this software in a public project, commercial product, plugin, or other published work, I would greatly appreciate it if you let me know.
 
@@ -12,92 +17,79 @@ There is no obligation to contact me, but I would genuinely love to see how my w
 
 If you use this project in a commercial product, you are not required to share any revenue with me under this license.
 
-Please retain the original copyright notice and license when redistributing this software or substantial portions of it, as required by the MIT License.
+Please retain the original copyright notice, license, and attribution notices when redistributing this software or substantial portions of it, as required by the Apache-2.0 License.
 
-## Maintenance
+### Maintenance
 
-This project is provided as-is.
+This project is provided as-is, without warranties or conditions of any kind.
 
 It may not receive regular updates or maintenance. Compatibility with future versions of the target software is not guaranteed.
 
-## Contributing
+### Contributing
 
-Feel free to fork, modify, or build upon this project under the terms of the MIT License.
+Feel free to fork, modify, or build upon this project under the terms of the Apache License 2.0.
 
-If you make improvements or fixes that you think would benefit the project, pull requests are very welcome. There is no guarantee that every contribution will be merged, but I would be happy to review them.
+If you make improvements or fixes that you think would benefit the project, pull requests are very welcome. There is no guarantee that every contribution will be merged, but I would be happy to review them. 
+*(Note: Contributions submitted to this project are also subject to the Apache-2.0 license terms.)*
 
+### ✨ Features
+- **Feature 1**: Description of what this feature does.
+- **Feature 2**: Description of what this feature does.
+- **Feature 3**: Description of what this feature does.
+
+*(Example of adding a screenshot)*
+<!-- ![App Screenshot](ここに画像のURLを入れる) -->
+
+### 📥 Installation
+Download the latest `setup.exe` or `.msi` from the [Releases](https://github.com/あなたのユーザー名/リポジトリ名/releases) page.
+
+### 📜 License
+This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
+
+                      Copyright (c) 2026 水 彩晶 (sui ayaki)
 
 ---
 
-## Development
+<a name="japanese"></a>
+## 🇯🇵 日本語
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+### 利用と商用プロジェクト
 
-Currently, two official plugins are available:
+このソフトウェアは、Apache License 2.0の条件に従って、自由に使用、改変、再配布することができます。
 
-* [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-* [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/)
+もしこのソフトウェアを公開プロジェクト、商用製品、プラグイン、その他の公開される成果物で使用される場合は、ご一報いただけると大変嬉しいです。
 
-## React Compiler
+ご連絡いただく義務はありませんが、自分の作品がどのように使われているのか、純粋にとても興味があります。また、作者の許可を得た上で、面白いプロジェクトを適切なクレジット表記とともに紹介・シェアさせていただくこともあります。
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+商用製品で使用する場合でも、このライセンスの下で収益を私とシェアする必要はありません。
 
-## Expanding the ESLint configuration
+このソフトウェアまたはその大部分を再配布する際は、Apache-2.0ライセンスの求めに従い、元の著作権表示、ライセンス、および帰属表示を保持してください。
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### メンテナンス
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+This project is provided as-is, without warranties or conditions of any kind.
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+定期的なアップデートやメンテナンスは行われない場合があります。また、対象ソフトウェアの将来のバージョンとの互換性は保証されない場合があります。
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+### コントリビューション（貢献）
 
-You can also install [eslint-plugin-react-x](https://npmx.dev/package/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://npmx.dev/package/eslint-plugin-react-dom) for React-specific rules:
+Apache-2.0ライセンスの条件の下で、自由にフォーク、改変、またはこのプロジェクトをベースにした開発を行ってください。
 
-```js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+プロジェクトの利益になると考える改善や修正を行った場合は、プルリクエストを大歓迎します。すべてのコントリビューションがマージされる保証はありませんが、喜んでレビューさせていただきます。
+*(※このプロジェクトに提出されたコントリビューションも、Apache-2.0ライセンスの条件に準拠するものとみなされます。)*
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### ✨ 主な機能
+- **機能 1**: この機能についての簡単な説明。
+- **機能 2**: この機能についての簡単な説明。
+- **機能 3**: この機能についての簡単な説明。
 
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-    },
-  },
-])
-```
+*(スクリーショットを載せる場合の例)*
+<!-- ![アプリの画面](ここに画像のURLを入れる) -->
 
+### 📥 インストール方法
+[Releases](https://github.com/あなたのユーザー名/リポジトリ名/releases) ページから最新の `setup.exe` または `.msi` をダウンロードしてインストールしてください。
+
+### 📜 ライセンス
+このプロジェクトは Apache License 2.0 の下で公開されています。詳細は [LICENSE](LICENSE) ファイルをご覧ください。
+
+                      Copyright (c) 2026 水 彩晶 (sui ayaki)
