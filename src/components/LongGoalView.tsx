@@ -1,5 +1,5 @@
 // src/components/LongGoalView.tsx
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Target, Plus, Trash2, Edit2, Check, X, Calendar as CalendarIcon, RotateCcw, ListFilter, Users, GripVertical } from 'lucide-react';
 
 export type Member = {
@@ -54,8 +54,8 @@ export default function LongGoalView({
   const [editDescInput, setEditDescInput] = useState<string>('');
   const [editMemberIds, setEditMemberIds] = useState<string[]>([]);
 
-  // ドラッグ＆ドロップ用の状態
-  const [draggingId, setDraggingId] = useState<string | null>(null);
+  // ★ マウスイベントベースのドラッグ＆ドロップ状態管理
+  const [draggingItem, setDraggingItem] = useState<LongGoalItem | null>(null);
   const [dragOverYear, setDragOverYear] = useState<number | null>(null);
 
   // 変換中のエンター誤爆防止用
@@ -96,7 +96,7 @@ export default function LongGoalView({
     }
   };
 
-  // ★ フィルタリングされたアイテム（!item.isDeleted を必ず除外対象に含める）
+  // フィルタリングされたアイテム
   const filteredItems = activeItems.filter(item => {
     if (filterMemberId === 'all') return true;
     const itemMembers = item.memberIds || [];
@@ -144,7 +144,7 @@ export default function LongGoalView({
     }
   };
 
-  // ★ 削除（論理削除＝墓石化へ変更）
+  // 削除（論理削除）
   const handleDeleteItem = (id: string) => {
     const now = new Date().toISOString();
     setLongItems((longItems || []).map(item => {
@@ -193,47 +193,67 @@ export default function LongGoalView({
     setEditingId(null);
   };
 
-  // ドラッグ＆ドロップのハンドラー
-  const handleDragStart = (e: React.DragEvent, item: LongGoalItem) => {
-    setDraggingId(item.id);
-    e.dataTransfer.setData('text/plain', item.id);
-    e.dataTransfer.effectAllowed = 'move';
-  };
-
-  const handleDragOver = (e: React.DragEvent, year: number) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-    if (dragOverYear !== year) {
-      setDragOverYear(year);
+  // ★ マウスイベントによるカスタムD&D実装（Tauri完全対応）
+  const handleMouseDown = (e: React.MouseEvent, item: LongGoalItem) => {
+    if ((e.target as HTMLElement).tagName === 'INPUT' || (e.target as HTMLElement).tagName === 'BUTTON' || (e.target as HTMLElement).closest('button')) {
+      return;
     }
+    setDraggingItem(item);
   };
 
-  const handleDragLeave = (e: React.DragEvent, year: number) => {
-    e.preventDefault();
-    if (dragOverYear === year) {
-      setDragOverYear(null);
-    }
-  };
+  const handleMouseMove = useCallback((e: MouseEvent) => {
+    if (!draggingItem) return;
 
-  const handleDrop = (e: React.DragEvent, targetYearNum: number) => {
-    e.preventDefault();
-    setDragOverYear(null);
-    const itemId = e.dataTransfer.getData('text/plain') || draggingId;
-    if (!itemId) return;
-
-    const now = new Date().toISOString();
-    setLongItems((longItems || []).map(item => {
-      if (item.id === itemId) {
-        return { 
-          ...item, 
-          year: targetYearNum,
-          updatedAt: now,
-        };
+    const elements = document.elementsFromPoint(e.clientX, e.clientY);
+    const yearCard = elements.find(el => el.hasAttribute('data-year-card'));
+    
+    if (yearCard) {
+      const yearNum = parseInt(yearCard.getAttribute('data-year-card') || '0', 10);
+      if (!isNaN(yearNum)) {
+        setDragOverYear(yearNum);
+        return;
       }
-      return item;
-    }));
-    setDraggingId(null);
-  };
+    }
+    setDragOverYear(null);
+  }, [draggingItem]);
+
+  const handleMouseUp = useCallback((e: MouseEvent) => {
+    if (!draggingItem) return;
+
+    const elements = document.elementsFromPoint(e.clientX, e.clientY);
+    const yearCard = elements.find(el => el.hasAttribute('data-year-card'));
+
+    if (yearCard) {
+      const targetYearNum = parseInt(yearCard.getAttribute('data-year-card') || '0', 10);
+      if (!isNaN(targetYearNum)) {
+        const now = new Date().toISOString();
+        setLongItems((longItems || []).map(item => {
+          if (item.id === draggingItem.id) {
+            return {
+              ...item,
+              year: targetYearNum,
+              updatedAt: now,
+            };
+          }
+          return item;
+        }));
+      }
+    }
+
+    setDraggingItem(null);
+    setDragOverYear(null);
+  }, [draggingItem, longItems, setLongItems]);
+
+  useEffect(() => {
+    if (draggingItem) {
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mouseup', handleMouseUp);
+    }
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [draggingItem, handleMouseMove, handleMouseUp]);
 
   // メンバー名を取得するヘルパー
   const getMemberNames = (memberIds?: string[]) => {
@@ -310,16 +330,14 @@ export default function LongGoalView({
           return (
             <div
               key={year}
-              onDragOver={(e) => handleDragOver(e, year)}
-              onDragLeave={(e) => handleDragLeave(e, year)}
-              onDrop={(e) => handleDrop(e, year)}
+              data-year-card={year}
               className={`w-80 shrink-0 rounded-2xl border flex flex-col shadow-xs transition-all ${
                 isDragOver 
-                  ? 'ring-2 ring-amber-500 bg-amber-500/5 border-amber-500' 
+                  ? 'ring-2 ring-amber-500 bg-amber-500/10 border-amber-500 scale-[1.02]' 
                   : (isDark ? 'bg-slate-900/60 border-slate-800' : 'bg-white border-slate-200/80')
               }`}
             >
-              <div className={`px-4 py-3 border-b flex items-center justify-between ${
+              <div className={`px-4 py-3 border-b flex items-center justify-between pointer-events-none ${
                 isDark ? 'bg-slate-900 border-slate-800' : 'bg-slate-50/80 border-slate-100'
               }`}>
                 <div className="flex items-center gap-2">
@@ -339,28 +357,39 @@ export default function LongGoalView({
 
               <div className="p-3 space-y-2.5 min-h-[160px] max-h-72 overflow-y-auto">
                 {yearGoals.length === 0 ? (
-                  <div className={`text-center py-10 text-xs italic border border-dashed rounded-xl ${
+                  <div className={`text-center py-10 text-xs italic border border-dashed rounded-xl pointer-events-none ${
                     isDark ? 'border-slate-800 text-slate-600' : 'border-slate-200 text-slate-400'
                   }`}>
-                    ここに目標をドロップするか<br />新規追加してください
+                    {isDragOver ? 'ここにドロップして移動' : '目標なし'}
                   </div>
                 ) : (
                   yearGoals.map((item) => {
                     const isEditing = editingId === item.id;
+                    const isBeingDragged = draggingItem?.id === item.id;
 
                     return (
                       <div
                         key={item.id}
-                        draggable={!isEditing}
-                        onDragStart={(e) => handleDragStart(e, item)}
-                        className={`group p-2.5 rounded-xl border text-xs transition-all ${
-                          draggingId === item.id ? 'opacity-40' : 'opacity-100'
-                        } ${
+                        onMouseDown={(e) => handleMouseDown(e, item)}
+                        style={{ opacity: isBeingDragged ? 0.4 : 1 }}
+                        className={`group p-2.5 rounded-xl border text-xs transition-all cursor-grab active:cursor-grabbing ${
                           isDark ? 'bg-slate-800/40 border-slate-800 text-slate-200' : 'bg-slate-50 border-slate-200/60 text-slate-700'
                         }`}
                       >
                         {isEditing ? (
-                          <div className="space-y-2">
+                          <div 
+                            className="space-y-2 cursor-default"
+                            onKeyDown={(e) => {
+                              if (isComposing) return;
+                              if (e.key === 'Enter') {
+                                e.preventDefault();
+                                handleSaveEdit(item.id);
+                              } else if (e.key === 'Escape') {
+                                e.preventDefault();
+                                handleCancelEdit();
+                              }
+                            }}
+                          >
                             <input
                               type="text"
                               value={editTitleInput}
@@ -399,14 +428,14 @@ export default function LongGoalView({
                                   isDark ? 'bg-slate-700 text-slate-300' : 'bg-slate-200 text-slate-700'
                                 }`}
                               >
-                                <X className="w-3 h-3" />
+                                <X className="w-3 h-3" /> 取消
                               </button>
                             </div>
                           </div>
                         ) : (
-                          <div className="flex items-start justify-between gap-1.5 min-w-0">
-                            <div className="flex items-start gap-1.5 min-w-0 flex-1 cursor-grab active:cursor-grabbing">
-                              <GripVertical className="w-3.5 h-3.5 shrink-0 mt-0.5 text-slate-400 opacity-50 group-hover:opacity-100" />
+                          <div className="flex items-start justify-between gap-1.5 min-w-0 pointer-events-none">
+                            <div className="flex items-start gap-1.5 min-w-0 flex-1">
+                              <GripVertical className="w-3.5 h-3.5 shrink-0 mt-0.5 text-slate-400 opacity-50 group-hover:opacity-100 transition-opacity" />
                               <div className="space-y-1 min-w-0 flex-1">
                                 <p className="font-bold break-all leading-snug">{item.title}</p>
                                 {item.description && (
@@ -425,7 +454,7 @@ export default function LongGoalView({
                                 </div>
                               </div>
                             </div>
-                            <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-0.5 shrink-0">
+                            <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-0.5 shrink-0 pointer-events-auto">
                               <button
                                 type="button"
                                 onClick={() => handleStartEdit(item)}
@@ -589,7 +618,19 @@ export default function LongGoalView({
                   }`}
                 >
                   {isEditing ? (
-                    <div className="space-y-3">
+                    <div 
+                      className="space-y-3"
+                      onKeyDown={(e) => {
+                        if (isComposing) return;
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          handleSaveEdit(item.id);
+                        } else if (e.key === 'Escape') {
+                          e.preventDefault();
+                          handleCancelEdit();
+                        }
+                      }}
+                    >
                       <div className="grid grid-cols-1 md:grid-cols-12 gap-2">
                         <div className="md:col-span-3">
                           <select
@@ -673,7 +714,7 @@ export default function LongGoalView({
                             isDark ? 'bg-slate-700 text-slate-300 hover:bg-slate-600' : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
                           }`}
                         >
-                          <X className="w-3.5 h-3.5" /> キャンセル
+                          <X className="w-3.5 h-3.5" /> 取消
                         </button>
                       </div>
                     </div>

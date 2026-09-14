@@ -1,5 +1,5 @@
 // src/components/YearView.tsx
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Plus, Trash2, Edit2, Check, X, Calendar as CalendarIcon, ChevronLeft, ChevronRight, RotateCcw, GripVertical, User } from 'lucide-react';
 
 export type YearItem = {
@@ -56,8 +56,8 @@ export default function YearView({
   const [editDescInput, setEditDescInput] = useState<string>('');
   const [editMemberIdsInput, setEditMemberIdsInput] = useState<string[]>([]);
   
-  // ドラッグ＆ドロップ中のアイテムID
-  const [draggingId, setDraggingId] = useState<string | null>(null);
+  // ★ ポインターイベントベースのドラッグ＆ドロップ状態管理
+  const [draggingItem, setDraggingItem] = useState<YearItem | null>(null);
   const [dragOverMonth, setDragOverMonth] = useState<number | null>(null);
 
   // 日本語変換中のEnter誤爆を防ぐフラグ
@@ -124,7 +124,7 @@ export default function YearView({
     }
   };
 
-  // ★ 項目の削除（論理削除＝墓石化へ変更）
+  // 項目の削除（論理削除）
   const handleDeleteItem = (id: string) => {
     const now = new Date().toISOString();
     setYearItems((yearItems || []).map(item => {
@@ -159,7 +159,7 @@ export default function YearView({
           title: editTitleInput.trim(),
           description: editDescInput.trim() || undefined,
           memberIds: editMemberIdsInput.length > 0 ? editMemberIdsInput : undefined,
-          memberId: undefined, // 古いフィールドはクリア
+          memberId: undefined,
           updatedAt: now,
         };
       }
@@ -185,42 +185,70 @@ export default function YearView({
     }
   };
 
-  // ドラッグ＆ドロップ処理
-  const handleDragStart = (e: React.DragEvent, item: YearItem) => {
-    setDraggingId(item.id);
-    e.dataTransfer.setData('text/plain', item.id);
-  };
-
-  const handleDragOver = (e: React.DragEvent, month: number) => {
-    e.preventDefault();
-    setDragOverMonth(month);
-  };
-
-  const handleDragLeave = (month: number) => {
-    if (dragOverMonth === month) {
-      setDragOverMonth(null);
+  // ★ マウスイベントによるカスタムD&D実装（Tauri完全対応）
+  const handleMouseDown = (e: React.MouseEvent, item: YearItem) => {
+    // インプットやボタンを押した時はドラッグを開始しない
+    if ((e.target as HTMLElement).tagName === 'INPUT' || (e.target as HTMLElement).tagName === 'BUTTON' || (e.target as HTMLElement).closest('button')) {
+      return;
     }
+    setDraggingItem(item);
   };
 
-  const handleDrop = (e: React.DragEvent, targetMonth: number) => {
-    e.preventDefault();
-    setDragOverMonth(null);
-    if (!draggingId) return;
+  const handleMouseMove = useCallback((e: MouseEvent) => {
+    if (!draggingItem) return;
 
-    const now = new Date().toISOString();
-    setYearItems((yearItems || []).map(item => {
-      if (item.id === draggingId) {
-        return {
-          ...item,
-          year: targetYear,
-          month: targetMonth,
-          updatedAt: now,
-        };
+    // 現在マウスがある位置の要素から、どの月のカード上にあるかを判定する
+    const elements = document.elementsFromPoint(e.clientX, e.clientY);
+    const monthCard = elements.find(el => el.hasAttribute('data-month-card'));
+    
+    if (monthCard) {
+      const monthNum = parseInt(monthCard.getAttribute('data-month-card') || '0', 10);
+      if (monthNum >= 1 && monthNum <= 12) {
+        setDragOverMonth(monthNum);
+        return;
       }
-      return item;
-    }));
-    setDraggingId(null);
-  };
+    }
+    setDragOverMonth(null);
+  }, [draggingItem]);
+
+  const handleMouseUp = useCallback((e: MouseEvent) => {
+    if (!draggingItem) return;
+
+    const elements = document.elementsFromPoint(e.clientX, e.clientY);
+    const monthCard = elements.find(el => el.hasAttribute('data-month-card'));
+
+    if (monthCard) {
+      const targetMonth = parseInt(monthCard.getAttribute('data-month-card') || '0', 10);
+      if (targetMonth >= 1 && targetMonth <= 12) {
+        const now = new Date().toISOString();
+        setYearItems((yearItems || []).map(item => {
+          if (item.id === draggingItem.id) {
+            return {
+              ...item,
+              year: targetYear,
+              month: targetMonth,
+              updatedAt: now,
+            };
+          }
+          return item;
+        }));
+      }
+    }
+
+    setDraggingItem(null);
+    setDragOverMonth(null);
+  }, [draggingItem, targetYear, yearItems, setYearItems]);
+
+  useEffect(() => {
+    if (draggingItem) {
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mouseup', handleMouseUp);
+    }
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [draggingItem, handleMouseMove, handleMouseUp]);
 
   // アイテムが持つメンバーIDのリストを取得するヘルパー
   const getItemMemberIds = (item: YearItem): string[] => {
@@ -229,9 +257,9 @@ export default function YearView({
     return [];
   };
 
-  // ★ フィルター適用済みのアイテム（!item.isDeleted を必ず除外対象に含める）
+  // フィルター適用済みのアイテム
   const filteredItems = (yearItems || []).filter(item => {
-    if (item.isDeleted) return false; // 削除済みは除外
+    if (item.isDeleted) return false;
     if (item.year !== targetYear) return false;
     const itemIds = getItemMemberIds(item);
 
@@ -339,16 +367,14 @@ export default function YearView({
           return (
             <div
               key={month}
-              onDragOver={(e) => handleDragOver(e, month)}
-              onDragLeave={() => handleDragLeave(month)}
-              onDrop={(e) => handleDrop(e, month)}
+              data-month-card={month}
               className={`rounded-2xl border flex flex-col shadow-xs transition-all ${
                 isDragOver 
-                  ? 'ring-2 ring-amber-500 bg-amber-500/5 border-amber-500' 
+                  ? 'ring-2 ring-amber-500 bg-amber-500/10 border-amber-500 scale-[1.02]' 
                   : isDark ? 'bg-slate-900/60 border-slate-800' : 'bg-white border-slate-200/80'
               }`}
             >
-              <div className={`px-4 py-3 border-b flex items-center justify-between ${
+              <div className={`px-4 py-3 border-b flex items-center justify-between pointer-events-none ${
                 isDark ? 'bg-slate-900 border-slate-800' : 'bg-slate-50/80 border-slate-100'
               }`}>
                 <div className="flex items-center gap-2">
@@ -368,19 +394,20 @@ export default function YearView({
 
               <div className="p-3 space-y-2.5 min-h-[120px] max-h-48 overflow-y-auto">
                 {monthGoals.length === 0 ? (
-                  <div className={`text-center py-6 text-xs italic ${isDark ? 'text-slate-600' : 'text-slate-400'}`}>
+                  <div className={`text-center py-6 text-xs italic pointer-events-none ${isDark ? 'text-slate-600' : 'text-slate-400'}`}>
                     {isDragOver ? 'ここにドロップして移動' : '目標なし'}
                   </div>
                 ) : (
                   monthGoals.map((item) => {
                     const isEditing = editingId === item.id;
                     const itemMemberIds = getItemMemberIds(item);
+                    const isBeingDragged = draggingItem?.id === item.id;
 
                     return (
                       <div
                         key={item.id}
-                        draggable={!isEditing}
-                        onDragStart={(e) => handleDragStart(e, item)}
+                        onMouseDown={(e) => handleMouseDown(e, item)}
+                        style={{ opacity: isBeingDragged ? 0.4 : 1 }}
                         className={`group p-2.5 rounded-xl border transition-all text-xs cursor-grab active:cursor-grabbing ${
                           isDark ? 'bg-slate-800/40 border-slate-800 text-slate-200' : 'bg-slate-50 border-slate-200/60 text-slate-700'
                         }`}
@@ -459,7 +486,7 @@ export default function YearView({
                             </div>
                           </div>
                         ) : (
-                          <div className="flex items-start justify-between gap-2">
+                          <div className="flex items-start justify-between gap-2 pointer-events-none">
                             <div className="flex items-start gap-1.5 min-w-0">
                               <GripVertical className="w-3.5 h-3.5 shrink-0 mt-0.5 text-slate-400 opacity-50 group-hover:opacity-100 transition-opacity" />
                               <div className="space-y-1 min-w-0">
@@ -482,7 +509,7 @@ export default function YearView({
                                 )}
                               </div>
                             </div>
-                            <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 shrink-0">
+                            <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 shrink-0 pointer-events-auto">
                               <button
                                 type="button"
                                 onClick={() => handleStartEdit(item)}

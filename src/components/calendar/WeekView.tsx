@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { type CalendarEvent, type TagItem } from './CalendarContainer';
 
 type WeekViewProps = {
@@ -23,9 +23,12 @@ export default function WeekView({
   onEventMove 
 }: WeekViewProps) {
   const isDark = theme == 'dark';
-  const [draggedEventId, setDraggedEventId] = useState<string | null>(null);
-  // ★追加: ドラッグし始めた時に、カード内のどこをクリック（掴んだ）か保持するオフセット
-  const [dragOffsetY, setDragOffsetY] = useState<number>(0);
+  
+  // ドラッグ操作の状態管理
+  const [draggingEvent, setDraggingEvent] = useState<{ event: CalendarEvent; startY: number; offsetY: number } | null>(null);
+  
+  // グリッド全体の参照（座標計算用）
+  const gridRef = useRef<HTMLDivElement>(null);
 
   const startOfWeek = new Date(currentDate);
   const day = startOfWeek.getDay();
@@ -60,8 +63,46 @@ export default function WeekView({
     return members.find(m => m.id === memberId);
   };
 
+  // マウスムーブとマウスアップをグローバルに監視して、どこで離してもドロップ判定できるようにする
+  const handleMouseMove = (e: React.MouseEvent | MouseEvent) => {
+    if (!draggingEvent || !gridRef.current) return;
+    // ドラッグ中の処理（必要であればゴースト要素の移動などに使えるが、今回はドロップ時に処理）
+  };
+
+  const handleMouseUp = (dateStr: string, e: React.MouseEvent) => {
+    if (!draggingEvent || !onEventMove) {
+      setDraggingEvent(null);
+      return;
+    }
+
+    e.stopPropagation();
+    
+    // ドロップされた列（日）のコンテナ、またはその上のグリッドから Y 座標を計算
+    const targetColumn = e.currentTarget.closest('.day-column');
+    if (targetColumn) {
+      const rect = targetColumn.getBoundingClientRect();
+      const offsetY = (e.clientY - rect.top) - draggingEvent.offsetY;
+      const totalMinutes = (offsetY / 64) * 60; // 1時間 = 64px
+      const droppedHour = Math.floor(totalMinutes / 60);
+      const droppedMinute = Math.floor((totalMinutes % 60) / 15) * 15; // 15分刻みスナップ
+
+      onEventMove(
+        draggingEvent.event, 
+        dateStr, 
+        Math.max(0, Math.min(23, droppedHour)), 
+        Math.max(0, Math.min(45, droppedMinute))
+      );
+    }
+
+    setDraggingEvent(null);
+  };
+
   return (
-    <div className={`flex flex-col h-full overflow-y-auto relative ${isDark ? 'bg-slate-950 text-slate-100' : 'bg-white text-slate-800'}`}>
+    <div 
+      className={`flex flex-col h-full overflow-y-auto relative select-none ${isDark ? 'bg-slate-950 text-slate-100' : 'bg-white text-slate-800'}`}
+      onMouseMove={handleMouseMove}
+      onMouseUp={() => setDraggingEvent(null)}
+    >
       
       {/* 曜日・日付ヘッダー */}
       <div className={`grid grid-cols-8 border-b sticky top-0 z-30 shadow-xs ${isDark ? 'bg-slate-900 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
@@ -86,7 +127,7 @@ export default function WeekView({
       </div>
 
       {/* タイムグリッド本体 */}
-      <div className="grid grid-cols-8 flex-1 relative" style={{ minHeight: `${24 * 64}px` }}>
+      <div ref={gridRef} className="grid grid-cols-8 flex-1 relative" style={{ minHeight: `${24 * 64}px` }}>
         {/* 時間軸の列 */}
         <div className="flex flex-col">
           {hours.map((hour) => (
@@ -145,32 +186,18 @@ export default function WeekView({
           return (
             <div 
               key={dayIdx} 
-              className={`relative border-r last:border-r-0 ${isDark ? 'border-slate-800/40' : 'border-slate-100'}`}
-              onDragOver={(e) => e.preventDefault()}
-              onDrop={(e) => {
-                e.preventDefault();
-                if (draggedEventId && onEventMove) {
-                  const targetEvent = events.find(ev => ev.id === draggedEventId);
-                  if (targetEvent) {
-                    // ★修正: ドロップ位置のY座標から「つかんでいた分のオフセット（dragOffsetY）」を引くことで、
-                    // カードのどこを掴んでいても正しい元の相対位置をキープして移動できるようにする
-                    const rect = e.currentTarget.getBoundingClientRect();
-                    const offsetY = (e.clientY - rect.top) - dragOffsetY;
-                    const totalMinutes = (offsetY / 64) * 60; // 1時間 = 64px
-                    const droppedHour = Math.floor(totalMinutes / 60);
-                    const droppedMinute = Math.floor((totalMinutes % 60) / 15) * 15; // 15分刻みスナップ
-
-                    onEventMove(targetEvent, dateStr, Math.max(0, Math.min(23, droppedHour)), droppedMinute);
-                  }
-                }
-                setDraggedEventId(null);
-                setDragOffsetY(0);
-              }}
+              className={`day-column relative border-r last:border-r-0 ${isDark ? 'border-slate-800/40' : 'border-slate-100'}`}
+              onMouseUp={(e) => handleMouseUp(dateStr, e)}
             >
               {hours.map((hour) => (
                 <div 
                   key={hour} 
-                  onClick={() => onAddEventForDateTime(date, hour)}
+                  onClick={() => {
+                    // ドラッグ中でなければクリックとしてイベント作成モーダルを開く
+                    if (!draggingEvent) {
+                      onAddEventForDateTime(date, hour);
+                    }
+                  }}
                   className={`h-16 border-b transition-colors hover:bg-amber-500/5 cursor-pointer ${isDark ? 'border-slate-800/40' : 'border-slate-100'}`}
                 />
               ))}
@@ -202,20 +229,26 @@ export default function WeekView({
 
                 const widthPercent = 100 / totalCols;
                 const leftPercent = colIndex * widthPercent;
+                const isBeingDragged = draggingEvent?.event.id === ev.id;
 
                 return (
                   <div
                     key={`${ev.id}-${dateStr}`}
-                    draggable
-                    onDragStart={(e) => {
-                      setDraggedEventId(ev.id);
-                      // ★追加: 要素内でのマウスの相対位置（Y座標）を記録する
+                    onMouseDown={(e) => {
+                      e.stopPropagation();
                       const rect = e.currentTarget.getBoundingClientRect();
-                      setDragOffsetY(e.clientY - rect.top);
+                      setDraggingEvent({
+                        event: ev,
+                        startY: e.clientY,
+                        offsetY: e.clientY - rect.top,
+                      });
                     }}
                     onClick={(e) => {
                       e.stopPropagation();
-                      onEditEvent(ev);
+                      // ドラッグしていなければ編集モーダルを開く
+                      if (!draggingEvent) {
+                        onEditEvent(ev);
+                      }
                     }}
                     style={{ 
                       top: `${topPx}px`,
@@ -224,9 +257,10 @@ export default function WeekView({
                       width: `calc(${widthPercent}% - 4px)`,
                       backgroundColor: `${baseColor}15`, 
                       borderColor: `${baseColor}88`,      
-                      color: isDark ? '#f8fafc' : '#0f172a'
+                      color: isDark ? '#f8fafc' : '#0f172a',
+                      opacity: isBeingDragged ? 0.5 : 1,
                     }}
-                    className="absolute z-20 text-[10px] font-bold p-1.5 rounded-lg border shadow-sm overflow-hidden flex flex-col justify-between cursor-grab active:cursor-grabbing ml-0.5"
+                    className="absolute z-20 text-[10px] font-bold p-1.5 rounded-lg border shadow-sm overflow-hidden flex flex-col justify-between cursor-grab active:cursor-grabbing ml-0.5 transition-opacity"
                   >
                     <div className="truncate">
                       <span className="font-black mr-1" style={{ color: baseColor }}>{displayTimeStr}</span>
