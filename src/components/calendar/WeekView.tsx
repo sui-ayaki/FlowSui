@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { type CalendarEvent, type TagItem } from './CalendarContainer';
 
 type WeekViewProps = {
@@ -63,45 +63,50 @@ export default function WeekView({
     return members.find(m => m.id === memberId);
   };
 
-  // マウスムーブとマウスアップをグローバルに監視して、どこで離してもドロップ判定できるようにする
-  const handleMouseMove = (e: React.MouseEvent | MouseEvent) => {
-    if (!draggingEvent || !gridRef.current) return;
-    // ドラッグ中の処理（必要であればゴースト要素の移動などに使えるが、今回はドロップ時に処理）
-  };
+  // 画面全体（window）でマウスアップを監視し、EXE環境でも確実にドロップ判定と座標計算を行う
+  useEffect(() => {
+    const handleGlobalMouseUp = (e: MouseEvent) => {
+      if (!draggingEvent || !onEventMove) {
+        setDraggingEvent(null);
+        return;
+      }
 
-  const handleMouseUp = (dateStr: string, e: React.MouseEvent) => {
-    if (!draggingEvent || !onEventMove) {
+      // マウス座標から直下の要素を特定し、.day-column（日付列）を確実に取得する
+      const targetElement = document.elementFromPoint(e.clientX, e.clientY);
+      const targetColumn = targetElement?.closest('.day-column');
+
+      if (targetColumn) {
+        const dateStr = targetColumn.getAttribute('data-datestr');
+        const rect = targetColumn.getBoundingClientRect();
+        const offsetY = (e.clientY - rect.top) - draggingEvent.offsetY;
+        const totalMinutes = (offsetY / 64) * 60; // 1時間 = 64px
+        const droppedHour = Math.floor(totalMinutes / 60);
+        const droppedMinute = Math.floor((totalMinutes % 60) / 15) * 15; // 15分刻みスナップ
+
+        if (dateStr) {
+          onEventMove(
+            draggingEvent.event, 
+            dateStr, 
+            Math.max(0, Math.min(23, droppedHour)), 
+            Math.max(0, Math.min(45, droppedMinute))
+          );
+        }
+      }
+
       setDraggingEvent(null);
-      return;
+    };
+
+    if (draggingEvent) {
+      window.addEventListener('mouseup', handleGlobalMouseUp);
     }
-
-    e.stopPropagation();
-    
-    // ドロップされた列（日）のコンテナ、またはその上のグリッドから Y 座標を計算
-    const targetColumn = e.currentTarget.closest('.day-column');
-    if (targetColumn) {
-      const rect = targetColumn.getBoundingClientRect();
-      const offsetY = (e.clientY - rect.top) - draggingEvent.offsetY;
-      const totalMinutes = (offsetY / 64) * 60; // 1時間 = 64px
-      const droppedHour = Math.floor(totalMinutes / 60);
-      const droppedMinute = Math.floor((totalMinutes % 60) / 15) * 15; // 15分刻みスナップ
-
-      onEventMove(
-        draggingEvent.event, 
-        dateStr, 
-        Math.max(0, Math.min(23, droppedHour)), 
-        Math.max(0, Math.min(45, droppedMinute))
-      );
-    }
-
-    setDraggingEvent(null);
-  };
+    return () => {
+      window.removeEventListener('mouseup', handleGlobalMouseUp);
+    };
+  }, [draggingEvent, onEventMove]);
 
   return (
     <div 
       className={`flex flex-col h-full overflow-y-auto relative select-none ${isDark ? 'bg-slate-950 text-slate-100' : 'bg-white text-slate-800'}`}
-      onMouseMove={handleMouseMove}
-      onMouseUp={() => setDraggingEvent(null)}
     >
       
       {/* 曜日・日付ヘッダー */}
@@ -186,8 +191,8 @@ export default function WeekView({
           return (
             <div 
               key={dayIdx} 
+              data-datestr={dateStr}
               className={`day-column relative border-r last:border-r-0 ${isDark ? 'border-slate-800/40' : 'border-slate-100'}`}
-              onMouseUp={(e) => handleMouseUp(dateStr, e)}
             >
               {hours.map((hour) => (
                 <div 

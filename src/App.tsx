@@ -26,7 +26,13 @@ import { useAppSync } from './hooks/useAppSync';
 import { fetchGitHubUser } from './lib/syncManager';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState('HOME');
+  const [activeTab, setActiveTab] = useState(() => {
+    try {
+      return localStorage.getItem('app_active_tab') || 'HOME';
+    } catch {
+      return 'HOME';
+    }
+  });
   
   const [showOverlapBorder, setShowOverlapBorder] = useState(true);
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
@@ -47,55 +53,89 @@ export default function App() {
   const [dependencyLineStyle] = useState<LineStyle>('solid');
 
   // ==========================================
-  // 複数接続プロファイルの状態管理
+  // 複数接続プロファイルの状態管理（即時保存対応版）
   // ==========================================
   const [profiles, setProfiles] = useState<ConnectionProfile[]>(() => {
-    const saved = localStorage.getItem('app_connection_profiles');
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch (e) {
-        console.error('Failed to parse connection profiles', e);
+    try {
+      const saved = localStorage.getItem('app_connection_profiles');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) return parsed;
       }
-    }
-    const oldConfig = localStorage.getItem('app_github_config');
-    if (oldConfig) {
-      try {
+      const oldConfig = localStorage.getItem('app_github_config');
+      if (oldConfig) {
         const parsed = JSON.parse(oldConfig);
-        return [{
-          id: 'default-migrated',
-          profileName: 'デフォルトプロファイル',
-          owner: parsed.owner,
-          repo: parsed.repo,
-          branch: parsed.branch || 'main',
-          filePath: parsed.filePath || 'data/app-sync-data.json',
-          token: parsed.token,
-          currentUser: { login: parsed.owner, avatarUrl: `https://github.com/${parsed.owner}.png` },
-          isOwner: true,
-          createdAt: new Date().toISOString()
-        }];
-      } catch (e) {
-        console.error('Failed to migrate old github config', e);
+        if (parsed && parsed.owner && parsed.repo) {
+          const migrated = [{
+            id: 'default-migrated',
+            profileName: 'デフォルトプロファイル',
+            owner: parsed.owner,
+            repo: parsed.repo,
+            branch: parsed.branch || 'main',
+            filePath: parsed.filePath || 'data/app-sync-data.json',
+            token: parsed.token,
+            currentUser: { login: parsed.owner, avatarUrl: `https://github.com/${parsed.owner}.png` },
+            isOwner: true,
+            createdAt: new Date().toISOString()
+          }];
+          localStorage.setItem('app_connection_profiles', JSON.stringify(migrated));
+          return migrated;
+        }
       }
+    } catch (e) {
+      console.error('Failed to parse connection profiles from localStorage', e);
     }
     return [];
   });
 
   const [activeProfileId, setActiveProfileId] = useState<string>(() => {
-    return localStorage.getItem('app_active_profile_id') || (profiles[0]?.id ?? '');
+    try {
+      const savedId = localStorage.getItem('app_active_profile_id');
+      if (savedId) return savedId;
+      const savedProfiles = localStorage.getItem('app_connection_profiles');
+      if (savedProfiles) {
+        const parsed = JSON.parse(savedProfiles);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          localStorage.setItem('app_active_profile_id', parsed[0].id);
+          return parsed[0].id;
+        }
+      }
+    } catch (e) {
+      console.error('Failed to load active profile id', e);
+    }
+    return '';
   });
 
-  useEffect(() => {
-    localStorage.setItem('app_connection_profiles', JSON.stringify(profiles));
-  }, [profiles]);
+  // 即時保存ヘルパー
+  const saveProfilesToStorage = (newProfiles: ConnectionProfile[]) => {
+    setProfiles(newProfiles);
+    try {
+      localStorage.setItem('app_connection_profiles', JSON.stringify(newProfiles));
+    } catch (e) {
+      console.error('Failed to save profiles immediately', e);
+    }
+  };
+
+  const saveActiveProfileIdToStorage = (id: string) => {
+    setActiveProfileId(id);
+    try {
+      if (id) {
+        localStorage.setItem('app_active_profile_id', id);
+      } else {
+        localStorage.removeItem('app_active_profile_id');
+      }
+    } catch (e) {
+      console.error('Failed to save activeProfileId immediately', e);
+    }
+  };
 
   useEffect(() => {
-    if (activeProfileId) {
-      localStorage.setItem('app_active_profile_id', activeProfileId);
-    } else {
-      localStorage.removeItem('app_active_profile_id');
+    try {
+      localStorage.setItem('app_active_tab', activeTab);
+    } catch (e) {
+      console.error('Failed to save activeTab', e);
     }
-  }, [activeProfileId]);
+  }, [activeTab]);
 
   const activeProfile = profiles.find(p => p.id === activeProfileId) || profiles[0] || null;
 
@@ -114,7 +154,6 @@ export default function App() {
     const targetBranch = params.branch || 'main';
     const targetFilePath = params.filePath || 'data/app-sync-data.json';
 
-    // リポジトリの本当のオーナー情報をGitHub APIで検証
     let isOwner = false;
     try {
       const cleanToken = params.token.trim();
@@ -134,7 +173,7 @@ export default function App() {
         }
       }
     } catch (e) {
-      console.warn('Failed to verify repository owner via API, falling back to name comparison:', e);
+      console.warn('Failed to verify repository owner via API:', e);
       isOwner = params.owner.toLowerCase() === ghUser.login.toLowerCase();
     }
 
@@ -154,24 +193,25 @@ export default function App() {
       isOwner: isOwner,
     };
 
-    setProfiles(prev => [...prev, newProfile]);
+    const nextProfiles = [...profiles, newProfile];
+    saveProfilesToStorage(nextProfiles);
+
     if (!activeProfileId) {
-      setActiveProfileId(newProfile.id);
+      saveActiveProfileIdToStorage(newProfile.id);
     }
   };
 
   const handleRemoveProfile = (id: string) => {
-    setProfiles(prev => {
-      const next = prev.filter(p => p.id !== id);
-      if (activeProfileId === id) {
-        setActiveProfileId(next[0]?.id || '');
-      }
-      return next;
-    });
+    const nextProfiles = profiles.filter(p => p.id !== id);
+    saveProfilesToStorage(nextProfiles);
+
+    if (activeProfileId === id) {
+      saveActiveProfileIdToStorage(nextProfiles[0]?.id || '');
+    }
   };
 
   const handleSwitchProfile = (id: string) => {
-    setActiveProfileId(id);
+    saveActiveProfileIdToStorage(id);
   };
 
   const githubConfigForSync = activeProfile ? {
@@ -217,7 +257,6 @@ export default function App() {
     lastSyncedAt: '2020-01-01T00:00:00.000Z'
   };
 
-  // 1. 先に useAppSync を呼び出して `data` を定義
   const { data, updateDataWithAction, isSyncing, syncError, manualSync } = useAppSync({
     initialData: initialAppData,
     currentUser: { 
@@ -229,7 +268,6 @@ export default function App() {
     githubConfig: githubConfigForSync,
   });
 
-  // 2. その後で `data` を利用して `currentUser` を解決
   const githubLogin = activeProfile?.currentUser?.login;
   const githubAvatar = activeProfile?.currentUser?.avatarUrl;
 
@@ -258,11 +296,9 @@ export default function App() {
     };
   })();
 
-  // 6. メンバー設定・管理更新 (MembersTab) 先に定義
   const setMembersWithLog = (updater: React.SetStateAction<UserProfile[]>) => {
     updateDataWithAction(
       (prev) => {
-        // ※ 削除済みを含めた全メンバーをベースに更新をかけられるように修正
         const next = typeof updater === 'function' ? updater(prev.members) : (updater as any);
         
         const existingMap = new Map(prev.members.map(m => [m.id, m]));
@@ -298,7 +334,7 @@ export default function App() {
             existing.role !== m.role ||
             existing.roleTitle !== m.roleTitle ||
             existing.avatarUrl !== m.avatarUrl ||
-            existing.isDeleted !== false; // 復元された場合も変更とみなす
+            existing.isDeleted !== false;
 
           memberMap.set(m.id, {
             id: m.id,
@@ -324,13 +360,11 @@ export default function App() {
 
   const handleAddMember = (newMember: UserProfile) => {
     setMembersWithLog(prev => {
-      // 既に同じID、または同じ名前のメンバーが過去に存在するかチェック
       const existingIndex = prev.findIndex(
         m => m.id === newMember.id || m.name.toLowerCase() === newMember.name.toLowerCase()
       );
 
       if (existingIndex !== -1) {
-        // すでに存在する場合は、データを上書きして isDeleted: false で復活させる
         return prev.map((m, idx) => 
           idx === existingIndex 
             ? { ...m, ...newMember, id: m.id, isDeleted: false, updatedAt: new Date().toISOString() } 
@@ -338,7 +372,6 @@ export default function App() {
         );
       }
 
-      // 存在しない場合は新規追加
       return [...prev, newMember];
     });
   };
@@ -355,7 +388,6 @@ export default function App() {
     setMembersWithLog(prev => prev.map(m => m.id === id ? { ...m, role, updatedAt: new Date().toISOString() } : m));
   };
 
-  // ★ GitHubのログインユーザーが members に未登録（または削除済み）の場合、自動で追加または復活させる処理
   useEffect(() => {
     if (!githubLogin) return;
     
@@ -374,12 +406,10 @@ export default function App() {
       };
       setMembersWithLog(prev => [...prev, newMember]);
     } else if (existingMember.isDeleted) {
-      // 削除済みとして存在していた場合は復活させる
       handleRestoreMember(existingMember.id);
     }
   }, [githubLogin, githubAvatar, data.members, isRepoOwner]);
 
-  // 1. タスク更新 (TimelineView)
   const setTasksWithLog = (updater: React.SetStateAction<TimelineTaskItem[]>) => {
     updateDataWithAction(
       (prev) => {
@@ -482,7 +512,6 @@ export default function App() {
     );
   };
 
-  // 2. 月別目標更新 (GoalView - month)
   const setYearItemsWithLog = (updater: React.SetStateAction<YearItem[]>) => {
     updateDataWithAction(
       (prev) => {
@@ -561,7 +590,6 @@ export default function App() {
     );
   };
 
-  // 3. 中長期目標更新 (GoalView - long)
   const setLongItemsWithLog = (updater: React.SetStateAction<LongGoalItem[]>) => {
     updateDataWithAction(
       (prev) => {
@@ -635,7 +663,6 @@ export default function App() {
     );
   };
 
-  // 4. カレンダーイベント更新 (CalendarContainer)
   const setCalendarEventsWithLog = (updater: React.SetStateAction<CalendarComponentEvent[]>) => {
     updateDataWithAction(
       (prev) => {
@@ -715,7 +742,6 @@ export default function App() {
     );
   };
 
-  // 5. タグ設定更新 (SettingsView)
   const setTagsWithLog = (updater: React.SetStateAction<SettingsTagItem[]>) => {
     updateDataWithAction(
       (prev) => {
