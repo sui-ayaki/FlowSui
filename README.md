@@ -32,13 +32,12 @@ Feel free to fork, modify, or build upon this project under the terms of the Apa
 If you make improvements or fixes that you think would benefit the project, pull requests are very welcome. There is no guarantee that every contribution will be merged, but I would be happy to review them. 
 *(Note: Contributions submitted to this project are also subject to the Apache-2.0 license terms.)*
 
-# Application Documentation
-
 ## ✨ Features ＆ How to use
 English localization is currently not supported. It might be added in the future, depending on mood. Pull requests are very welcome!  
 A team operation feature using GitHub is also included so that multiple people can work together. See [Sync & Git](#GitSync-en) for details.
 
 ### HOME
+![HOME](demo-photo/HOME.JPG)
 - **1.** Currently logged-in user.
 - **2.** Click the **Today** button to jump back to the current day.
 - **3.** Select a specific date to jump to that day.
@@ -51,39 +50,53 @@ A team operation feature using GitHub is also included so that multiple people c
 
 ### Goals
 There are two types of goals: **Month Goals** (monthly goals) and **Long Goals** (yearly goals).
+![Month Goals](demo-photo/Month-Goals.JPG)
 - **10.** Switch between Month Goals and Long Goals.
 - **11.** Drag and drop to change the month. You can also delete or edit from here.
 - **12.** Configure the settings here and press ⑭ to add a goal. From left to right: target month, goal title, and description/memo.
 - **13.** Select a person here to assign the goal to them. If left unselected, the target scope is recognized as everyone.
 - **14.** Click this button to add a goal.
+
+![Long Goals](demo-photo/Long-Goals.JPG)
 - **15.** Drag and drop to change the year. You can also delete or edit from here.
 - **16.** Configure the settings here and press ⑭ to add a goal. From left to right: target year, goal title, and description/memo.
 - **17.** View the added yearly tasks in a list format.
 
 ### Calendar
 You can switch between **Week**, **Month**, and **Year** views in the Calendar.
+![Week Calendar](demo-photo/WEEK.JPG)
 - **18.** Switch between **WEEK / MONTH / YEAR**.
 - **19.** Sort the calendar by **TAG**.
 - **20.** Sort the calendar by **MEMBER**.
 - **21.** Click this button to add a schedule/event. Alternatively, double-click on any empty space to create one.
 - **22.** Event colors can be changed. You can also assign responsible members or tags.
+
+![Month Cakendar](demo-photo/MONTH.JPG)
 - **23.** Colors are reflected. Click a day number to move to the **WEEK** view containing that day.
+
+![Year Calendar](demo-photo/YEAR.JPG)
 - **24.** Colors are reflected. Dots representing the number of events are displayed. Click a month to move to the **MONTH** view.
 
 ### Analytics
 Although called Analytics, the workload/utilization rate is a rough estimate and has low reliability.
+![Analytics](demo-photo/Analytics.JPG)
 - **25.** Member names, roles, and utilization rates are displayed in a card format.
+
+
+![Analytics-person](demo-photo/Analytics-p.JPG)
 - **26.** Click this button to return to the card-format view.
 - **27.** The currently viewed member. This is a dropdown; selecting someone switches to their detail view.
 - **28.** Warnings regarding schedule overlaps and other details are displayed.
 - **29.** A list of tasks currently assigned to that person is displayed, along with their duration.
 
 ### Members
+![Members](demo-photo/Members.JPG)
 - **30.** Displays current team members and their roles. Owners can change roles and delete users.
 
 <a name="GitSync-en"></a>
 ### Sync & Git
 This configuration must be performed whether you are using the app individually or as a team.
+![sync ＆ Git](demo-photo/Sync＆Git.JPG)
 - **31.** Displays the profiles you have created. Multiple profiles can be registered and switched.
 - **32.** Profile name. You can name it freely.
 - **33.** The owner name of the GitHub repository used for synchronization. (When using as a team, private repositories require the owner to invite you as a collaborator in advance).
@@ -94,12 +107,14 @@ This configuration must be performed whether you are using the app individually 
 - **38.** Click this button to register as a profile.
 
 ### Audit Logs
+![Audit Logs](demo-photo/Audit-Logs.JPG)
 - **39.** Filter changes by category (**Event / Task / Goal / Member / Sync**).
 - **40.** Records who made the change and what was targeted. A system to record detailed diffs has not been implemented yet.
 
 ### Setting
 There are **General Settings** (system-wide settings that only Owners and Admins can configure) and **Personal Settings** (configured and saved individually per user).
 
+![Setting1](demo-photo/Setting1.JPG)
 - **41.** Your current role. If you don't have access to general settings, it appears grayed out without editing permissions.
 - **42.** Sets the overlap tolerance for dependent tasks (connected by arrows):
   - **厳密:** OK starting the day after the parent task ends (same-day overlap is not allowed). Overlaps beyond this result in an error (red arrow).
@@ -110,6 +125,8 @@ There are **General Settings** (system-wide settings that only Owners and Admins
 - **44.** Default task color settings. The dropdown below determines whether tag colors or individual task colors take priority when a tag is applied. (Default is tag color priority).
 - **45.** Create tags here. These tags are shared across tasks, calendars, and goals (presumably). From left to right: Tag name, color, and add button. Click the gray text ("削除") to remove a tag.
 - **46.** Color settings for calendar items. From left to right: Event color, Goal color, and Memo color.
+
+![Setting2](demo-photo/Setting2.JPG)
 - **47.** Personal settings section.
 - **48.** Set how many years of tasks to display.
 - **49.** Set how many days of blank space to leave to the left of "Today" (i.e., how many days of past history are visible by default).
