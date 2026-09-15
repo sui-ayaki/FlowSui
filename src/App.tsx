@@ -26,6 +26,7 @@ import { useAppSync } from './hooks/useAppSync';
 import { fetchGitHubUser } from './lib/syncManager';
 
 export default function App() {
+  // タブの状態
   const [activeTab, setActiveTab] = useState(() => {
     try {
       return localStorage.getItem('app_active_tab') || 'HOME';
@@ -34,26 +35,102 @@ export default function App() {
     }
   });
   
-  const [showOverlapBorder, setShowOverlapBorder] = useState(true);
-  const [theme, setTheme] = useState<'light' | 'dark'>('light');
-  const [scrollYears, setScrollYears] = useState<number>(1);
-  const [todayOffsetDays, setTodayOffsetDays] = useState<number>(3);
+  // ==========================================
+  // 個人設定の状態（localStorageから初期値取得 ＆ 変更時に即時保存）
+  // ==========================================
+  const [showOverlapBorder, setShowOverlapBorder] = useState(() => {
+    try {
+      const saved = localStorage.getItem('app_show_overlap_border');
+      return saved !== null ? JSON.parse(saved) : true;
+    } catch {
+      return true;
+    }
+  });
 
-  const [dependencyMarginType, setDependencyMarginType] = useState<'strict' | 'same_day' | 'fully_allowed' | 'custom'>('strict');
-  const [dependencyCustomDays, setDependencyCustomDays] = useState<number>(2);
-  const [overlapCondition, setOverlapCondition] = useState<'all' | 'tag_match'>('all');
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    try {
+      return (localStorage.getItem('app_theme') as 'light' | 'dark') || 'light';
+    } catch {
+      return 'light';
+    }
+  });
 
-  const [eventColor, setEventColor] = useState<string>('#3b82f6');
-  const [goalColor, setGoalColor] = useState<string>('#f59e0b');
-  const [memoColor, setMemoColor] = useState<string>('#10b981');
+  const [scrollYears, setScrollYears] = useState<number>(() => {
+    try {
+      const saved = localStorage.getItem('app_scroll_years');
+      return saved ? Number(saved) : 1;
+    } catch {
+      return 1;
+    }
+  });
 
-  const [defaultTaskColor, setDefaultTaskColor] = useState('#64748b');
-  const [colorPriority, setColorPriority] = useState<'tag' | 'task'>('tag');
+  const [todayOffsetDays, setTodayOffsetDays] = useState<number>(() => {
+    try {
+      const saved = localStorage.getItem('app_today_offset_days');
+      return saved ? Number(saved) : 3;
+    } catch {
+      return 3;
+    }
+  });
+
+  const [dependencyMarginType, setDependencyMarginType] = useState<'strict' | 'same_day' | 'fully_allowed' | 'custom'>(() => {
+    try {
+      return (localStorage.getItem('app_dep_margin_type') as any) || 'strict';
+    } catch {
+      return 'strict';
+    }
+  });
+
+  const [dependencyCustomDays, setDependencyCustomDays] = useState<number>(() => {
+    try {
+      const saved = localStorage.getItem('app_dep_custom_days');
+      return saved ? Number(saved) : 2;
+    } catch {
+      return 2;
+    }
+  });
+
+  const [overlapCondition, setOverlapCondition] = useState<'all' | 'tag_match'>(() => {
+    try {
+      return (localStorage.getItem('app_overlap_condition') as any) || 'all';
+    } catch {
+      return 'all';
+    }
+  });
+
+  const [eventColor, setEventColor] = useState<string>(() => localStorage.getItem('app_color_event') || '#3b82f6');
+  const [goalColor, setGoalColor] = useState<string>(() => localStorage.getItem('app_color_goal') || '#f59e0b');
+  const [memoColor, setMemoColor] = useState<string>(() => localStorage.getItem('app_color_memo') || '#10b981');
+  const [defaultTaskColor, setDefaultTaskColor] = useState<string>(() => localStorage.getItem('app_default_task_color') || '#64748b');
+  
+  const [colorPriority, setColorPriority] = useState<'tag' | 'task'>(() => {
+    try {
+      return (localStorage.getItem('app_color_priority') as any) || 'tag';
+    } catch {
+      return 'tag';
+    }
+  });
+
   const [dependencyLineColor] = useState('#94a3b8');
   const [dependencyLineStyle] = useState<LineStyle>('solid');
 
+  // それぞれの設定が変更されたときに即座にlocalStorageへ保存するEffect
+  useEffect(() => { try { localStorage.setItem('app_active_tab', activeTab); } catch {} }, [activeTab]);
+  useEffect(() => { try { localStorage.setItem('app_show_overlap_border', JSON.stringify(showOverlapBorder)); } catch {} }, [showOverlapBorder]);
+  useEffect(() => { try { localStorage.setItem('app_theme', theme); } catch {} }, [theme]);
+  useEffect(() => { try { localStorage.setItem('app_scroll_years', String(scrollYears)); } catch {} }, [scrollYears]);
+  useEffect(() => { try { localStorage.setItem('app_today_offset_days', String(todayOffsetDays)); } catch {} }, [todayOffsetDays]);
+  useEffect(() => { try { localStorage.setItem('app_dep_margin_type', dependencyMarginType); } catch {} }, [dependencyMarginType]);
+  useEffect(() => { try { localStorage.setItem('app_dep_custom_days', String(dependencyCustomDays)); } catch {} }, [dependencyCustomDays]);
+  useEffect(() => { try { localStorage.setItem('app_overlap_condition', overlapCondition); } catch {} }, [overlapCondition]);
+  useEffect(() => { try { localStorage.setItem('app_color_event', eventColor); } catch {} }, [eventColor]);
+  useEffect(() => { try { localStorage.setItem('app_color_goal', goalColor); } catch {} }, [goalColor]);
+  useEffect(() => { try { localStorage.setItem('app_color_memo', memoColor); } catch {} }, [memoColor]);
+  useEffect(() => { try { localStorage.setItem('app_default_task_color', defaultTaskColor); } catch {} }, [defaultTaskColor]);
+  useEffect(() => { try { localStorage.setItem('app_color_priority', colorPriority); } catch {} }, [colorPriority]);
+
   // ==========================================
-  // 複数接続プロファイルの状態管理（即時保存対応版）
+  // 複数接続プロファイルの状態管理
   // ==========================================
   const [profiles, setProfiles] = useState<ConnectionProfile[]>(() => {
     try {
@@ -106,7 +183,6 @@ export default function App() {
     return '';
   });
 
-  // 即時保存ヘルパー
   const saveProfilesToStorage = (newProfiles: ConnectionProfile[]) => {
     setProfiles(newProfiles);
     try {
@@ -129,17 +205,7 @@ export default function App() {
     }
   };
 
-  useEffect(() => {
-    try {
-      localStorage.setItem('app_active_tab', activeTab);
-    } catch (e) {
-      console.error('Failed to save activeTab', e);
-    }
-  }, [activeTab]);
-
   const activeProfile = profiles.find(p => p.id === activeProfileId) || profiles[0] || null;
-
-  // プロファイルに保存された isOwner フラグを取得
   const isRepoOwner = activeProfile ? (activeProfile as any).isOwner : false;
 
   const handleAddProfile = async (params: {
