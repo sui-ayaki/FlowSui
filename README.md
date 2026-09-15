@@ -83,7 +83,7 @@ Although called Analytics, the workload/utilization rate is a rough estimate and
 - **25.** Member names, roles, and utilization rates are displayed in a card format.
 
 
-![Analytics-person](demo-photo/Analytics-p.JPG)
+![Analytics-person](demo-photo/Analytic-p.JPG)
 - **26.** Click this button to return to the card-format view.
 - **27.** The currently viewed member. This is a dropdown; selecting someone switches to their detail view.
 - **28.** Warnings regarding schedule overlaps and other details are displayed.
@@ -222,7 +222,7 @@ Analyticsとは言っているが、稼働率はなんちゃってなので信�
 - **25.** メンバー名、ロール、稼働率がカード形式で表示される
 
 詳細を押すことで以下の表示へと遷移される
-![Analytics-person](demo-photo/Analytics-p.JPG)
+![Analytics-person](demo-photo/Analytic-p.JPG)
 - **26.** このボタンを押すことでカード形式で表示されている画面へと戻ることができる
 - **27.** 現在見ているメンバー。ドロップダウンになっており、人を選択することで選択した人の詳細画面へと切り替わる
 - **28.** 期間重複による警告等が表示される
