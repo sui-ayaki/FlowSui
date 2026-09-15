@@ -32,11 +32,11 @@ Feel free to fork, modify, or build upon this project under the terms of the Apa
 If you make improvements or fixes that you think would benefit the project, pull requests are very welcome. There is no guarantee that every contribution will be merged, but I would be happy to review them. 
 *(Note: Contributions submitted to this project are also subject to the Apache-2.0 license terms.)*
 
-## ✨ Features ＆ How to use
+### ✨ Features ＆ How to use
 English localization is currently not supported. It might be added in the future, depending on mood. Pull requests are very welcome!  
 A team operation feature using GitHub is also included so that multiple people can work together. See [Sync & Git](#GitSync-en) for details.
 
-### HOME
+#### HOME
 ![HOME](demo-photo/HOME.JPG)
 - **1.** Currently logged-in user.
 - **2.** Click the **Today** button to jump back to the current day.
@@ -48,7 +48,7 @@ A team operation feature using GitHub is also included so that multiple people c
 - **8.** Grab the dot on the far left edge and drag-and-drop it onto another task to connect them with an arrow.
 - **9.** Click an arrow to open a pop-up asking if you want to delete it; click OK to remove the arrow.
 
-### Goals
+#### Goals
 There are two types of goals: **Month Goals** (monthly goals) and **Long Goals** (yearly goals).
 ![Month Goals](demo-photo/Month-Goals.JPG)
 - **10.** Switch between Month Goals and Long Goals.
@@ -62,7 +62,7 @@ There are two types of goals: **Month Goals** (monthly goals) and **Long Goals**
 - **16.** Configure the settings here and press ⑭ to add a goal. From left to right: target year, goal title, and description/memo.
 - **17.** View the added yearly tasks in a list format.
 
-### Calendar
+#### Calendar
 You can switch between **Week**, **Month**, and **Year** views in the Calendar.
 ![Week Calendar](demo-photo/WEEK.JPG)
 - **18.** Switch between **WEEK / MONTH / YEAR**.
@@ -77,7 +77,7 @@ You can switch between **Week**, **Month**, and **Year** views in the Calendar.
 ![Year Calendar](demo-photo/YEAR.JPG)
 - **24.** Colors are reflected. Dots representing the number of events are displayed. Click a month to move to the **MONTH** view.
 
-### Analytics
+#### Analytics
 Although called Analytics, the workload/utilization rate is a rough estimate and has low reliability.
 ![Analytics](demo-photo/Analytics.JPG)
 - **25.** Member names, roles, and utilization rates are displayed in a card format.
@@ -89,12 +89,12 @@ Although called Analytics, the workload/utilization rate is a rough estimate and
 - **28.** Warnings regarding schedule overlaps and other details are displayed.
 - **29.** A list of tasks currently assigned to that person is displayed, along with their duration.
 
-### Members
+#### Members
 ![Members](demo-photo/Members.JPG)
 - **30.** Displays current team members and their roles. Owners can change roles and delete users.
 
 <a name="GitSync-en"></a>
-### Sync & Git
+#### Sync & Git
 This configuration must be performed whether you are using the app individually or as a team.
 ![sync ＆ Git](demo-photo/Sync＆Git.JPG)
 - **31.** Displays the profiles you have created. Multiple profiles can be registered and switched.
@@ -106,12 +106,12 @@ This configuration must be performed whether you are using the app individually 
 - **37.** Input field for the GitHub Personal Access Token. **Classic tokens are recommended**, as Fine-grained tokens have not been verified. Even when working in a team, each user must input their own token created from their personal account; repository owners do not need to share tokens. When creating a token, you must check `repo` and `user`.
 - **38.** Click this button to register as a profile.
 
-### Audit Logs
+#### Audit Logs
 ![Audit Logs](demo-photo/Audit-Logs.JPG)
 - **39.** Filter changes by category (**Event / Task / Goal / Member / Sync**).
 - **40.** Records who made the change and what was targeted. A system to record detailed diffs has not been implemented yet.
 
-### Setting
+#### Setting
 There are **General Settings** (system-wide settings that only Owners and Admins can configure) and **Personal Settings** (configured and saved individually per user).
 
 ![Setting1](demo-photo/Setting1.JPG)
