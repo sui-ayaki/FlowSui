@@ -66,7 +66,7 @@ export default function MonthView({
     return tags.find(t => t.name === tagName);
   };
 
-  const weekDays = ['日', '月', '火', '水', '木', '金', '土'];
+  const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
   return (
     <div className={`flex flex-col h-full select-none ${isDark ? 'bg-slate-950 text-slate-100' : 'bg-white text-slate-800'}`}>

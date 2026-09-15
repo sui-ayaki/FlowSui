@@ -119,7 +119,7 @@ export default function WeekView({
           return (
             <div key={idx} className={`p-3 text-center border-r last:border-r-0 ${isDark ? 'border-slate-800' : 'border-slate-200'}`}>
               <span className={`text-[10px] font-bold block ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-                {['日', '月', '火', '水', '木', '金', '土'][date.getDay()]}
+                {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][date.getDay()]}
               </span>
               <span className={`text-sm font-black inline-block mt-0.5 px-2 py-0.5 rounded-full ${
                 isToday ? 'bg-amber-500 text-white' : isDark ? 'text-slate-200' : 'text-slate-700'

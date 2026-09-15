@@ -58,7 +58,7 @@ export default function YearCalendarView({
               </div>
 
               <div className="grid grid-cols-7 text-center gap-1">
-                {['日', '月', '火', '水', '木', '金', '土'].map((w, i) => (
+                {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((w, i) => (
                   <span key={i} className={`text-[9px] font-bold ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
                     {w}
                   </span>
