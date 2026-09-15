@@ -35,33 +35,33 @@ If you make improvements or fixes that you think would benefit the project, pull
 ### ✨ Features
 
 #### HOME
-<!-- ![HOME](demo-photo/HOME.JPG) -->
+![HOME](demo-photo/HOME.JPG)
 
 #### Goals
-<!-- ![Month Goals](demo-photo/Month Goals.JPG) -->
-<!-- ![Long Goals](demo-photo/Long Goals.JPG) -->
+![Month Goals](demo-photo/Month-Goals.JPG)
+![Long Goals](demo-photo/Long-Goals.JPG)
 
 #### Calendar
-<!-- ![Week Calendar](demo-photo/WEEK.JPG) -->
-<!-- ![Month Cakendar](demo-photo/MONTH.JPG) -->
-<!-- ![Year Calendar](demo-photo/YEAR.JPG) -->
+![Week Calendar](demo-photo/WEEK.JPG)
+![Month Cakendar](demo-photo/MONTH.JPG)
+![Year Calendar](demo-photo/YEAR.JPG)
 
 #### Analytics
-<!-- ![Analytics](demo-photo/Analytics.JPG) -->
-<!-- ![Analytics-person](demo-photo/Analytics-p.JPG) -->
+![Analytics](demo-photo/Analytics.JPG)
+![Analytics-person](demo-photo/Analytics-p.JPG)
 
 #### Members
-<!-- ![Members](demo-photo/Members.JPG) -->
+![Members](demo-photo/Members.JPG)
 
 #### Sync ＆ Git
-<!-- ![sync ＆ Git](demo-photo/Sync ＆ Git.JPG) -->
+![sync ＆ Git](demo-photo/Sync＆Git.JPG)
 
 #### Audit Logs
-<!-- ![Audit Logs](demo-photo/Audit Logs.JPG) -->
+![Audit Logs](demo-photo/Audit-Logs.JPG)
 
 #### Setting
-<!-- ![Setting1](demo-photo/Setting 1.JPG) -->
-<!-- ![Setting2](demo-photo/Setting 2.JPG) -->
+![Setting1](demo-photo/Setting1.JPG)
+![Setting2](demo-photo/Setting2.JPG)
 
 
 ### 📥 Installation
@@ -105,36 +105,33 @@ Apache-2.0ライセンスの条件の下で、自由にフォーク、改変、�
 ### ✨ 主な機能
 
 #### HOME
-<!-- ![HOME](demo-photo/HOME.JPG) -->
-- **機能 1**: この機能についての簡単な説明。
+![HOME](demo-photo/HOME.JPG)
 
 #### Goals
-<!-- ![Month Goals](demo-photo/Month Goals.JPG) -->
-<!-- ![Long Goals](demo-photo/Long Goals.JPG) -->
-- **機能 2**: この機能についての簡単な説明。
+![Month Goals](demo-photo/Month-Goals.JPG)
+![Long Goals](demo-photo/Long-Goals.JPG)
 
 #### Calendar
-<!-- ![Week Calendar](demo-photo/WEEK.JPG) -->
-<!-- ![Month Cakendar](demo-photo/MONTH.JPG) -->
-<!-- ![Year Calendar](demo-photo/YEAR.JPG) -->
-- **機能 3**: この機能についての簡単な説明。
+![Week Calendar](demo-photo/WEEK.JPG)
+![Month Cakendar](demo-photo/MONTH.JPG)
+![Year Calendar](demo-photo/YEAR.JPG)
 
 #### Analytics
-<!-- ![Analytics](demo-photo/Analytics.JPG) -->
-<!-- ![Analytics-person](demo-photo/Analytics-p.JPG) -->
+![Analytics](demo-photo/Analytics.JPG)
+![Analytics-person](demo-photo/Analytics-p.JPG)
 
 #### Members
-<!-- ![Members](demo-photo/Members.JPG) -->
+![Members](demo-photo/Members.JPG)
 
 #### Sync ＆ Git
-<!-- ![sync ＆ Git](demo-photo/Sync ＆ Git.JPG) -->
+![sync ＆ Git](demo-photo/Sync＆Git.JPG)
 
 #### Audit Logs
-<!-- ![Audit Logs](demo-photo/Audit Logs.JPG) -->
+![Audit Logs](demo-photo/Audit-Logs.JPG)
 
 #### Setting
-<!-- ![Setting1](demo-photo/Setting 1.JPG) -->
-<!-- ![Setting2](demo-photo/Setting 2.JPG) -->
+![Setting1](demo-photo/Setting1.JPG)
+![Setting2](demo-photo/Setting2.JPG)
 
 
 ### 📥 インストール方法
