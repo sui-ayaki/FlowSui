@@ -36,7 +36,7 @@ If you make improvements or fixes that you think would benefit the project, pull
 
 ## ✨ Features ＆ How to use
 English localization is currently not supported. It might be added in the future, depending on mood. Pull requests are very welcome!  
-A team operation feature using GitHub is also included so that multiple people can work together. See [Sync & Git](#GitSync) for details.
+A team operation feature using GitHub is also included so that multiple people can work together. See [Sync & Git](#GitSync-en) for details.
 
 ### HOME
 - **1.** Currently logged-in user.
@@ -81,7 +81,7 @@ Although called Analytics, the workload/utilization rate is a rough estimate and
 ### Members
 - **30.** Displays current team members and their roles. Owners can change roles and delete users.
 
-<a name="GitSync"></a>
+<a name="GitSync-en"></a>
 ### Sync & Git
 This configuration must be performed whether you are using the app individually or as a team.
 - **31.** Displays the profiles you have created. Multiple profiles can be registered and switched.
@@ -156,7 +156,7 @@ Apache-2.0ライセンスの条件の下で、自由にフォーク、改変、�
 
 ### ✨ 主な機能と使い方
 アプリ内の英語の対応は未対応。そのうち追加したいと思っているが、気分次第。Pull request大歓迎。
-複数人で動かすこともできるようにgithubを使ったチーム運用機能も搭載してる。[Sync ＆ Git](#GitSync)を参照
+複数人で動かすこともできるようにgithubを使ったチーム運用機能も搭載してる。[Sync ＆ Git](#GitSync-jp)を参照
 
 #### HOME
 ![HOME](demo-photo/HOME.JPG)
@@ -215,7 +215,7 @@ Analyticsとは言っているが、稼働率はなんちゃってなので信�
 ![Members](demo-photo/Members.JPG)
 - **30.** 現在チームとして参加してるメンバーが見える。ついでにロールも表示される。Ownerはロールの変更、ユーザーの削除等を行える
 
-<a name="GitSync"></a>
+<a name="GitSync-jp"></a>
 #### Sync ＆ Git
 個人で使用する際も、チームで運用する際もこの設定はすること
 ![sync ＆ Git](demo-photo/Sync＆Git.JPG)
