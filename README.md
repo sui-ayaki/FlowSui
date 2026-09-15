@@ -33,12 +33,36 @@ If you make improvements or fixes that you think would benefit the project, pull
 *(Note: Contributions submitted to this project are also subject to the Apache-2.0 license terms.)*
 
 ### ✨ Features
-- **Feature 1**: Description of what this feature does.
-- **Feature 2**: Description of what this feature does.
-- **Feature 3**: Description of what this feature does.
 
-*(Example of adding a screenshot)*
-<!-- ![App Screenshot](ここに画像のURLを入れる) -->
+#### HOME
+<!-- ![HOME](demo-photo/HOME.JPG) -->
+
+#### Goals
+<!-- ![Month Goals](demo-photo/Month Goals.JPG) -->
+<!-- ![Long Goals](demo-photo/Long Goals.JPG) -->
+
+#### Calendar
+<!-- ![Week Calendar](demo-photo/WEEK.JPG) -->
+<!-- ![Month Cakendar](demo-photo/MONTH.JPG) -->
+<!-- ![Year Calendar](demo-photo/YEAR.JPG) -->
+
+#### Analytics
+<!-- ![Analytics](demo-photo/Analytics.JPG) -->
+<!-- ![Analytics-person](demo-photo/Analytics-p.JPG) -->
+
+#### Members
+<!-- ![Members](demo-photo/Members.JPG) -->
+
+#### Sync ＆ Git
+<!-- ![sync ＆ Git](demo-photo/Sync ＆ Git.JPG) -->
+
+#### Audit Logs
+<!-- ![Audit Logs](demo-photo/Audit Logs.JPG) -->
+
+#### Setting
+<!-- ![Setting1](demo-photo/Setting 1.JPG) -->
+<!-- ![Setting2](demo-photo/Setting 2.JPG) -->
+
 
 ### 📥 Installation
 Download the latest `setup.exe` or `.msi` from the [Releases](https://github.com/あなたのユーザー名/リポジトリ名/releases) page.
@@ -81,31 +105,36 @@ Apache-2.0ライセンスの条件の下で、自由にフォーク、改変、�
 ### ✨ 主な機能
 
 #### HOME
-<!-- ![アプリの画面](ここに画像のURLを入れる) -->
+<!-- ![HOME](demo-photo/HOME.JPG) -->
 - **機能 1**: この機能についての簡単な説明。
 
 #### Goals
-<!-- ![アプリの画面](ここに画像のURLを入れる) -->
+<!-- ![Month Goals](demo-photo/Month Goals.JPG) -->
+<!-- ![Long Goals](demo-photo/Long Goals.JPG) -->
 - **機能 2**: この機能についての簡単な説明。
 
 #### Calendar
-<!-- ![アプリの画面](ここに画像のURLを入れる) -->
+<!-- ![Week Calendar](demo-photo/WEEK.JPG) -->
+<!-- ![Month Cakendar](demo-photo/MONTH.JPG) -->
+<!-- ![Year Calendar](demo-photo/YEAR.JPG) -->
 - **機能 3**: この機能についての簡単な説明。
 
 #### Analytics
-<!-- ![アプリの画面](ここに画像のURLを入れる) -->
+<!-- ![Analytics](demo-photo/Analytics.JPG) -->
+<!-- ![Analytics-person](demo-photo/Analytics-p.JPG) -->
 
 #### Members
-<!-- ![アプリの画面](ここに画像のURLを入れる) -->
+<!-- ![Members](demo-photo/Members.JPG) -->
 
 #### Sync ＆ Git
-<!-- ![アプリの画面](ここに画像のURLを入れる) -->
+<!-- ![sync ＆ Git](demo-photo/Sync ＆ Git.JPG) -->
 
 #### Audit Logs
-<!-- ![アプリの画面](ここに画像のURLを入れる) -->
+<!-- ![Audit Logs](demo-photo/Audit Logs.JPG) -->
 
 #### Setting
-<!-- ![アプリの画面](ここに画像のURLを入れる) -->
+<!-- ![Setting1](demo-photo/Setting 1.JPG) -->
+<!-- ![Setting2](demo-photo/Setting 2.JPG) -->
 
 
 ### 📥 インストール方法
